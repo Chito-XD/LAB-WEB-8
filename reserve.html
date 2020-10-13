@@ -33,6 +33,7 @@
             <span class="fa fa-home"></span>
           </button>
         </a>
+        <p id="counter"></p>
       </div>
     </div>
     <div class="row">
@@ -84,6 +85,39 @@
 
 <!-- BELOW CODE IS CRITICAL. IT HANDLES HOW FORM DATA IS SENT TO OUR SERVER -->
 <script type="text/javascript">
+ function printCounter () {
+    $.get('/api/getCounters', function(data){
+      $('#counter').text(`Esta página ha sido visitadada ${data[0]["reservas"]} veces`);
+    });
+  }
 
+  printCounter();
+
+  $('.submit').on('click', function(e) {
+    e.preventDefault();
+
+    const name = $('#reserve-name').val();
+    const phone = $('#reserve-phone').val();
+    const email = $('#reserve-email').val();
+    const id = $('#reserve-unique-id').val();
+
+    const newReservation = {
+      name, phone, email, id
+    };
+    
+    $.post('/api/reserve', newReservation, function(response){
+      console.log(response);
+      if (response){
+        alert("You are officially booked!");
+      } else {
+        alert("Sorry you are on the wait list");
+      }
+    });
+
+    $('#reserve-name').val('');
+    $('#reserve-phone').val('');
+    $('#reserve-email').val('');
+    $('#reserve-unique-id').val('');
+  });
 
 </script>

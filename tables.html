@@ -25,7 +25,10 @@
 
       <div class="text-center">
         <a href="/reserve"><button class="btn btn-lg btn-danger"><span class="fa fa-credit-card"></span> Make Reservation</button></a>
+        <button id="checkOff" class="btn btn-lg btn-success">Check off </button>
+        <button id="sendMail" class="btn btn-lg btn-info">Notificar a usuarios </button>
         <a href="/"><button class="btn btn-lg btn-default"><span class="fa fa-home"></span></button></a>
+        <p id="counter"></p>
       </div>
     </div>
 
@@ -71,8 +74,84 @@
 <!-- BELOW CODE IS CRITICAL. IT HANDLES HOW FORM DATA IS LOADED FROM OUR SERVER -->
 <script type="text/javascript">
 
+  function getReservations () {
+    $.get('/api/tables', function(data){
+      $("#tableList").empty();
+      
+      data.map((reserInfo, index) => {
 
+        const table = $("#tableList");
 
+        const listItem = $("<li class='list-group-item mt-4'>");
+        listItem.append(
+          `
+            <h2>Table # ${index+1} </h2>
+            <h2>ID: ${reserInfo.id} </h2>
+            <h2>NAME: ${reserInfo.name} </h2>
+            <h2>EMAIL: ${reserInfo.email} </h2>
+            <h2>PHONE: ${reserInfo.phone} </h2>
+          `
+        );
+        table.append(listItem);
+        
+      })
+    });
+  }
+
+  function getWaitlingList () {
+    $("#waitList").empty();
+    $.get('/api/waitlist', function(data){
+      
+      data.map((waitList, index) => {
+
+        const waitTable = $("#waitList");
+
+        const listItem = $("<li class='list-group-item mt-4'>");
+        listItem.append(
+          `
+            <h2>Table # ${index+1} </h2>
+            <h2>ID: ${waitList.id} </h2>
+            <h2>NAME: ${waitList.name} </h2>
+            <h2>EMAIL: ${waitList.email} </h2>
+            <h2>PHONE: ${waitList.phone} </h2>
+          `
+        );
+        waitTable.append(listItem);
+        
+      })
+    });
+  }
+
+  function printCounter () {
+    $.get('/api/getCounters', function(data){
+      $('#counter').text(`Esta página ha sido visitadada ${data[0]["tables"]} veces`);
+    });
+  }
+
+  getReservations();
+  getWaitlingList();
+  printCounter();
+
+  $('#clear').on('click', function(e){
+    alert('Clearing..');
+    $.post('/api/clear', function(data){
+      getReservations();
+      getWaitlingList();
+    });
+  })
+
+  $('#checkOff').on('click', function(e){
+    $.post('/api/checkOff', function(data){
+      getReservations();
+      getWaitlingList();
+    })
+  })
+
+  $('#sendMail').on('click', function(e){
+    $.post('/api/sendmail', function(e){
+      alert('Mails sent');
+    });
+  })
 
 </script>
 
